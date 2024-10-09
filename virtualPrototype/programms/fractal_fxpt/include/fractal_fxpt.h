@@ -9,28 +9,13 @@ typedef uint16_t rgb565;
 // Q7.25 fixed point type
 typedef int32_t fxpt_7_25;
 
-inline fxpt_7_25 float_to_fix(float f)
-{
-    return (fxpt_7_25)(f * (1 << 25));
-}
-
-inline float fix_to_float(fxpt_7_25 f)
-{
-    return (float)(f) / (1 << 25);
-}
+#define float_to_fix(f) (fxpt_7_25)(f * (1 << 25))
+#define fix_to_float(f) ((float)(f) / (1 << 25))
 
 inline fxpt_7_25 mul(fxpt_7_25 a, fxpt_7_25 b)
 {
     int64_t product = (int64_t)a * (int64_t)b; // Q14.50
     return (fxpt_7_25)((product >> 25) & 0xffffffff);
-}
-
-inline fxpt_7_25 div(fxpt_7_25 a, fxpt_7_25 b)
-{
-    // 101.00011
-    // 010.00000
-    // 10.100011
-    int64_t quotient = a / b;
 }
 
 //! \brief Pointer to fractal point calculation function

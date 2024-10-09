@@ -81,8 +81,12 @@ int main()
     const fxpt_7_25 b = float_to_fix(2.75);
     printf("0x%08x  %f\n", a, fix_to_float(a));
     printf("0x%08x  %f\n", b, fix_to_float(b));
+
     const fxpt_7_25 c = mul(a, b);
     printf("0x%08x  %f\n", c, fix_to_float(c));
+
+    const fxpt_7_25 d = div(a, b);
+    printf("0x%08x  %f\n", d, fix_to_float(d));
 
     return 0;
 }

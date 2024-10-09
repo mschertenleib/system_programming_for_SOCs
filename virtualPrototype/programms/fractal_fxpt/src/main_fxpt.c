@@ -20,7 +20,7 @@ int main()
    volatile unsigned int *vga = (unsigned int *)0x50000020;
    volatile unsigned int reg, hi;
    rgb565 frameBuffer[SCREEN_WIDTH * SCREEN_HEIGHT];
-   fxpt_7_25 delta = div(FRAC_WIDTH, SCREEN_WIDTH);
+   fxpt_7_25 delta = float_to_fix(FRAC_WIDTH / SCREEN_WIDTH);
    int i;
    vga_clear();
    printf("Starting drawing a fractal\n");
