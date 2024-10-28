@@ -140,7 +140,28 @@ my_float mul(my_float a, my_float b)
     return result;
 }
 
-int less_than(my_float a, my_float b) { return 0; }
+int less_than(my_float a, my_float b)
+{
+    // Signs are different
+    if (a.sign ^ b.sign)
+    {
+        return a.sign > b.sign;
+    }
+
+    // Signs are the same
+    int comp;
+    if (a.exponent != b.exponent)
+    {
+        comp = a.exponent < b.exponent;
+    }
+    else
+    {
+        comp = a.mantissa < b.mantissa;
+    }
+
+    // If both are negative, reverse the comparison
+    return a.sign ? !comp : comp;
+}
 
 uint16_t calc_mandelbrot_point(my_float cx, my_float cy, uint16_t n_max)
 {
