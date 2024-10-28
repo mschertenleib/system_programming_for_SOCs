@@ -102,21 +102,17 @@ my_float mul(my_float a, my_float b)
     // Multiply mantissas
     uint64_t mantissa_a = (uint64_t)(a.mantissa | (1 << MANTISSA_BITS));
     uint64_t mantissa_b = (uint64_t)(b.mantissa | (1 << MANTISSA_BITS));
+    // 2 integral bits and 2 * MANTISSA_BITS fractional bits
     uint64_t mantissa_product = mantissa_a * mantissa_b;
 
-    printf("%llx\n", mantissa_product);
-    // Normalize the product
-    if (mantissa_product & (1ull << (2 * MANTISSA_BITS + 1)))
+    // If the second integral bit is set
+    if (mantissa_product & ((uint64_t)1 << (2 * MANTISSA_BITS + 1)))
     {
-        // The product overflowed to an extra bit
-        mantissa_product >>= MANTISSA_BITS + 2;
+        mantissa_product >>= 1;
         result_exponent += 1;
     }
-    else
-    {
-        mantissa_product >>= MANTISSA_BITS + 1;
-    }
-    printf("%llx\n", mantissa_product);
+    // Normalize the product to a MANTISSA_BITS + 1 mantissa, truncating trailing bits
+    mantissa_product >>= MANTISSA_BITS;
 
     // Remove implicit leading 1
     uint32_t result_mantissa = (uint32_t)mantissa_product & ((1 << MANTISSA_BITS) - 1);
@@ -125,22 +121,26 @@ my_float mul(my_float a, my_float b)
     return result;
 }
 
-uint16_t calc_mandelbrot_point(float cx, float cy, uint16_t n_max)
+int less_than(my_float a, my_float b) { return 0; }
+
+uint16_t calc_mandelbrot_point(my_float cx, my_float cy, uint16_t n_max)
 {
-    float x = cx;
-    float y = cy;
+    my_float x = cx;
+    my_float y = cy;
     uint16_t n = 0;
-    float xx, yy, two_xy;
+    my_float xx, yy, two_xy;
+    const my_float two = {.sign = 0, .exponent = 1 + EXPONENT_EXCESS, .mantissa = 0};
+    const my_float four = {.sign = 0, .exponent = 2 + EXPONENT_EXCESS, .mantissa = 0};
     do
     {
-        xx = x * x;
-        yy = y * y;
-        two_xy = 2.0f * x * y;
+        xx = mul(x, x);
+        yy = mul(y, y);
+        two_xy = mul(two, mul(x, y));
 
-        x = xx - yy + cx;
-        y = two_xy + cy;
+        x = add(sub(xx, yy), cx);
+        y = add(two_xy, cy);
         ++n;
-    } while (((xx + yy) < 4.0f) && (n < n_max));
+    } while (less_than(add(xx, yy), four) && (n < n_max));
     return n;
 }
 
