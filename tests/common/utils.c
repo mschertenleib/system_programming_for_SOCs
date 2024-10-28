@@ -1,23 +1,4 @@
-#include "mandelbrot.h"
-
-uint16_t calc_mandelbrot_point(float cx, float cy, uint16_t n_max)
-{
-    float x = cx;
-    float y = cy;
-    uint16_t n = 0;
-    float xx, yy, two_xy;
-    do
-    {
-        xx = x * x;
-        yy = y * y;
-        two_xy = 2.0f * x * y;
-
-        x = xx - yy + cx;
-        y = two_xy + cy;
-        ++n;
-    } while (((xx + yy) < 4.0f) && (n < n_max));
-    return n;
-}
+#include "utils.h"
 
 rgb565 iter_to_bw(uint16_t iter, uint16_t n_max)
 {

@@ -1,26 +1,34 @@
-PROJECT = test
+PROJECT = tests
 
 CFLAGS = -Wfatal-errors -Wall -Wextra -Wshadow -Wcast-align -Wunused -Wpedantic\
 	-Wconversion -Wnull-dereference -Wdouble-promotion -Wmisleading-indentation\
     -Wduplicated-cond -Wduplicated-branches -Wlogical-op
 CFLAGS += -O3
 
-SRCS = $(wildcard src/*.c)
-HEADERS = $(wildcard src/*.h)
-OBJS = $(patsubst src/%.c, build/%.c.o, $(SRCS))
+COMMON_SRCS = $(wildcard common/*.c)
+COMMON_OBJS = $(COMMON_SRCS:%.c=build/%.c.o)
 
-test: $(OBJS)
+all: build/float build/fixed
+
+build/float: build/src/float.c.o $(COMMON_OBJS)
+	@mkdir -p $(@D)
 	@gcc $^ -o $@
 
-build/stb_image_write.c.o: src/stb_image_write.c external/stb_image_write.h
-	@gcc -Iexternal -c $< -o $@
-
-build/%.c.o : src/%.c $(HEADERS)
+build/fixed: build/src/fixed.c.o $(COMMON_OBJS)
 	@mkdir -p $(@D)
-	@gcc $(CFLAGS) -Iexternal -c $< -o $@
+	@gcc $^ -o $@
+
+# Build stb_image_write without warnings
+build/common/stb_image_write.c.o: common/stb_image_write.c
+	@mkdir -p $(@D)
+	@gcc -c $< -o $@ -Icommon
+
+build/%.c.o: %.c
+	@mkdir -p $(@D)
+	@gcc $(CFLAGS) -c $< -o $@ -Icommon
 
 
 .PHONY: clean
 
 clean:
-	@rm build/*
+	@rm -r build/*
