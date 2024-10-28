@@ -8,13 +8,17 @@ CFLAGS += -O3
 COMMON_SRCS = $(wildcard common/*.c)
 COMMON_OBJS = $(COMMON_SRCS:%.c=build/%.c.o)
 
-all: build/float build/fixed
+all: build/float build/fixed build/myfloat
 
 build/float: build/src/float.c.o $(COMMON_OBJS)
 	@mkdir -p $(@D)
 	@gcc $^ -o $@
 
 build/fixed: build/src/fixed.c.o $(COMMON_OBJS)
+	@mkdir -p $(@D)
+	@gcc $^ -o $@
+
+build/myfloat: build/src/myfloat.c.o $(COMMON_OBJS)
 	@mkdir -p $(@D)
 	@gcc $^ -o $@
 
