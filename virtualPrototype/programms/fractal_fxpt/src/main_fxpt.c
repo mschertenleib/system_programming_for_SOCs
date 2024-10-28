@@ -10,17 +10,19 @@ const int SCREEN_WIDTH = 512;  //!< screen width
 const int SCREEN_HEIGHT = 512; //!< screen height
 
 // Constants describing the initial view port on the fractal function
-const fxpt_7_25 FRAC_WIDTH = float_to_fix(3.0f); //!< default fractal width (3.0 in Q4.28)
-const fxpt_7_25 CX_0 = float_to_fix(-2.0f);      //!< default start x-coordinate (-2.0 in Q4.28)
-const fxpt_7_25 CY_0 = float_to_fix(-1.5f);      //!< default start y-coordinate (-1.5 in Q4.28)
-const uint16_t N_MAX = 64;                       //!< maximum number of iterations
+// NOTE: we leave FRAC_WIDTH as float since we just need it to compute delta once,
+// and we convert the float result to fixed-point.
+const float FRAC_WIDTH = 3.0f;              //!< default fractal width (3.0 in Q4.28)
+const fxpt_7_25 CX_0 = float_to_fix(-2.0f); //!< default start x-coordinate (-2.0 in Q4.28)
+const fxpt_7_25 CY_0 = float_to_fix(-1.5f); //!< default start y-coordinate (-1.5 in Q4.28)
+const uint16_t N_MAX = 64;                  //!< maximum number of iterations
 
 int main()
 {
    volatile unsigned int *vga = (unsigned int *)0x50000020;
    volatile unsigned int reg, hi;
    rgb565 frameBuffer[SCREEN_WIDTH * SCREEN_HEIGHT];
-   fxpt_7_25 delta = float_to_fix(FRAC_WIDTH / SCREEN_WIDTH);
+   fxpt_7_25 delta = float_to_fix((float)FRAC_WIDTH / (float)SCREEN_WIDTH);
    int i;
    vga_clear();
    printf("Starting drawing a fractal\n");

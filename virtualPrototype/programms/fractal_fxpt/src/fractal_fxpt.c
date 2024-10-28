@@ -17,8 +17,7 @@ uint16_t calc_mandelbrot_point_soft(fxpt_7_25 cx, fxpt_7_25 cy, uint16_t n_max)
   {
     xx = mul(x, x);
     yy = mul(y, y);
-    two_xy = mul(2, mul(x, y));
-
+    two_xy = mul(x, y) << 1;
     x = xx - yy + cx;
     y = two_xy + cy;
     ++n;
