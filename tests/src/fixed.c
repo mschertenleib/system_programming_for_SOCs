@@ -6,14 +6,15 @@
 #include <stdint.h>
 
 typedef int32_t fxpt_7_25;
+#define FRACTIONAL_BITS 25
 
-#define float_to_fix(flpt) (fxpt_7_25)((flpt) * (float)(1 << 25))
-#define fix_to_float(fxpt) ((float)(fxpt) / (float)(1 << 25))
+#define float_to_fix(flpt) (fxpt_7_25)((flpt) * (float)(1 << FRACTIONAL_BITS))
+#define fix_to_float(fxpt) ((float)(fxpt) / (float)(1 << FRACTIONAL_BITS))
 
 inline fxpt_7_25 mul(fxpt_7_25 a, fxpt_7_25 b)
 {
-    int64_t product = (int64_t)a * (int64_t)b; // Q14.50
-    return (fxpt_7_25)(product >> 25);
+    int64_t product = (int64_t)a * (int64_t)b;
+    return (fxpt_7_25)(product >> FRACTIONAL_BITS);
 }
 
 uint16_t calc_mandelbrot_point(fxpt_7_25 cx, fxpt_7_25 cy, uint16_t n_max)
