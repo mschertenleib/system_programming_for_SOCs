@@ -6,13 +6,14 @@
 #include <stdint.h>
 #include <math.h>
 
-#define EXPONENT_EXCESS 122
 #define MANTISSA_BITS 24
+#define EXPONENT_BITS (32 - MANTISSA_BITS - 1)
+#define EXPONENT_EXCESS ((1 << EXPONENT_BITS) - 1 - 5)
 
 typedef struct
 {
     uint32_t sign : 1;
-    uint32_t exponent : 32 - MANTISSA_BITS - 1;
+    uint32_t exponent : EXPONENT_BITS;
     uint32_t mantissa : MANTISSA_BITS;
 } my_float;
 
@@ -44,7 +45,10 @@ my_float float_to_my_float(float f)
 
     uint32_t exponent = (uint32_t)((int32_t)s.parts.exponent - 127 + EXPONENT_EXCESS);
     uint32_t mantissa = s.parts.mantissa << (MANTISSA_BITS - 23);
-    return (my_float){.sign = s.parts.sign, .exponent = exponent, .mantissa = mantissa};
+    my_float result = {.sign = s.parts.sign, .exponent = exponent, .mantissa = mantissa};
+    printf("%f = %d %d %x\n", f, s.parts.sign, exponent, mantissa);
+    printf("%d %d %x\n", result.sign, result.exponent, result.mantissa);
+    return result;
 }
 
 my_float add(my_float a, my_float b)
@@ -117,6 +121,10 @@ my_float mul(my_float a, my_float b)
 
     // Add exponents
     int32_t result_exponent = a.exponent + b.exponent - EXPONENT_EXCESS;
+    if (result_exponent < 0)
+    {
+        return (my_float){0};
+    }
 
     // Multiply mantissas
     uint64_t mantissa_a = (uint64_t)(a.mantissa | (1 << MANTISSA_BITS));
