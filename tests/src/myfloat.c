@@ -28,6 +28,25 @@ float my_float_to_float(my_float f)
     return result;
 }
 
+my_float float_to_my_float(float f)
+{
+    union
+    {
+        float f;
+        struct
+        {
+            // IEEE 754
+            uint32_t mantissa : 23;
+            uint32_t exponent : 8;
+            uint32_t sign : 1;
+        } parts;
+    } s = {.f = f};
+
+    uint32_t exponent = (uint32_t)((int32_t)s.parts.exponent - 127 + EXPONENT_EXCESS);
+    uint32_t mantissa = s.parts.mantissa << (MANTISSA_BITS - 23);
+    return (my_float){.sign = s.parts.sign, .exponent = exponent, .mantissa = mantissa};
+}
+
 my_float add(my_float a, my_float b)
 {
     int32_t exponent_a = a.exponent - EXPONENT_EXCESS;
@@ -154,23 +173,26 @@ int main()
     printf("%f + %f = %f\n", my_float_to_float(a), my_float_to_float(b), my_float_to_float(c));
     printf("%f - %f = %f\n", my_float_to_float(a), my_float_to_float(b), my_float_to_float(d));
     printf("%f * %f = %f\n", my_float_to_float(a), my_float_to_float(b), my_float_to_float(e));
-    return 0;
+
+    my_float my_f = float_to_my_float(3.25f);
+    printf("%f\n", my_float_to_float(my_f));
 
     const int width = 512;
     const int height = 512;
     const float fractal_width = 3.0f;
-    const float cx_0 = -2.0f;
-    const float cy_0 = -1.5f;
+    const my_float cx_0 = {.sign = 1, .exponent = EXPONENT_EXCESS + 1, .mantissa = 0};                    // -2.0
+    const my_float cy_0 = {.sign = 1, .exponent = EXPONENT_EXCESS, .mantissa = 1 << (MANTISSA_BITS - 1)}; // -1.5
     const uint16_t n_max = 64;
+    printf("%f %f\n", my_float_to_float(cx_0), my_float_to_float(cy_0));
 
     uint8_t *image = malloc(height * width * 3);
-    const float delta = (float)fractal_width / (float)width;
+    const my_float delta = float_to_my_float((float)fractal_width / (float)width);
 
     uint8_t *pixel_channel = image;
-    float cy = cy_0;
+    my_float cy = cy_0;
     for (int k = 0; k < height; ++k)
     {
-        float cx = cx_0;
+        my_float cx = cx_0;
         for (int i = 0; i < width; ++i)
         {
             uint16_t n_iter = calc_mandelbrot_point(cx, cy, n_max);
@@ -181,9 +203,9 @@ int main()
             *(pixel_channel++) = (uint8_t)(r * 255.0f);
             *(pixel_channel++) = (uint8_t)(g * 255.0f);
             *(pixel_channel++) = (uint8_t)(b * 255.0f);
-            cx += delta;
+            cx = add(cx, delta);
         }
-        cy += delta;
+        cy = add(cy, delta);
     }
 
     if (!stbi_write_png("mandelbrot.png", width, height, 3, image, width * 3))
