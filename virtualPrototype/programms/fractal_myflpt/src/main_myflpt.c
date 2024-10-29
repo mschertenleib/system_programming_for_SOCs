@@ -23,7 +23,7 @@ int main() {
    int i;
    vga_clear();
    printf("Starting drawing a fractal\n");
-#ifdef OR1300   
+#ifdef __OR1300__   
    /* enable the caches */
    icache_write_cfg( CACHE_DIRECT_MAPPED | CACHE_SIZE_8K | CACHE_REPLACE_FIFO );
    dcache_write_cfg( CACHE_FOUR_WAY | CACHE_SIZE_8K | CACHE_REPLACE_LRU | CACHE_WRITE_BACK );
@@ -39,7 +39,7 @@ int main() {
    for (i = 0 ; i < SCREEN_WIDTH*SCREEN_HEIGHT ; i++) frameBuffer[i]=0;
 
    draw_fractal(frameBuffer,SCREEN_WIDTH,SCREEN_HEIGHT,&calc_mandelbrot_point_soft, &iter_to_colour,CX_0,CY_0,delta,N_MAX);
-#ifdef OR1300   
+#ifdef __OR1300__   
    dcache_flush();
 #endif
    printf("Done\n");
