@@ -2,7 +2,7 @@ PROJECT = tests
 
 CFLAGS = -Wfatal-errors -Wall -Wextra -Wshadow -Wcast-align -Wunused -Wpedantic\
 	-Wconversion -Wnull-dereference -Wdouble-promotion -Wmisleading-indentation\
-    -Wduplicated-cond -Wduplicated-branches -Wlogical-op
+    -Wduplicated-cond -Wlogical-op
 CFLAGS += -O3
 LDFLAGS = -lm
 
