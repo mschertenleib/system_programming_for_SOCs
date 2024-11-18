@@ -15,9 +15,9 @@ int main()
     // initializes the UART, performance counters, peripherals etc.
     platform_init();
 
-    icache_write_cfg(CACHE_DIRECT_MAPPED | CACHE_SIZE_8K | CACHE_REPLACE_FIFO);
+    // icache_write_cfg(CACHE_DIRECT_MAPPED | CACHE_SIZE_8K | CACHE_REPLACE_FIFO);
     dcache_write_cfg(CACHE_FOUR_WAY | CACHE_SIZE_4K | CACHE_REPLACE_LRU | CACHE_WRITE_BACK);
-    icache_enable(1);
+    // icache_enable(1);
     dcache_enable(1);
 
     perf_init();
@@ -26,10 +26,10 @@ int main()
     perf_set_mask(PERF_COUNTER_2, PERF_BUS_IDLE_MASK);
     perf_set_mask(PERF_COUNTER_3, PERF_ICACHE_MISS_MASK);
 
-    // task1_main();
-    // task2_main();
+    task1_main();
+    task2_main();
     task3_main();
-    // task4_main();
+    task4_main();
 
     dcache_flush();
 

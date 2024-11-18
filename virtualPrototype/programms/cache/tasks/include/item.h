@@ -11,6 +11,8 @@ extern "C" {
 
 typedef struct item_t item_t;
 
+#define USE_IMPROVED_ITEM
+
 /**
  * @brief An item connects an `id` to `data`.
  *
@@ -19,9 +21,15 @@ struct item_t {
     /** @brief Item ID. */
     unsigned id;
 
+#ifdef USE_IMPROVED_ITEM
+    /** @brief Item data. */
+    char *data;
+#else
     /** @brief Item data. */
     char data[ITEM_DATALEN];
+#endif
 };
+
 
 /**
  * @brief Initializes items with random data.

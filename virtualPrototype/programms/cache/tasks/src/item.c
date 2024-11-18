@@ -71,6 +71,10 @@ void item_init(item_t *item, uint32_t id, const char *data)
     // YOU CAN MODIFY THIS.
     item->id = id;
 
+#ifdef USE_IMPROVED_ITEM
+    item->data = (char*)alloc(ITEM_DATALEN);
+#endif
+
     if (data != NULL)
         memcpy(item->data, data, ITEM_DATALEN);
     else
