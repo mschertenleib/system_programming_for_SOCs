@@ -18,36 +18,40 @@
 // defines the offset of the base address register.
 #define LEDS_BASEADDR_OFFSET 0x7FCull
 
-void init_dcache() {
+void init_dcache()
+{
     // YOU CAN MODIFY THIS.
     dcache_enable(0);
-    dcache_write_cfg(CACHE_FOUR_WAY | CACHE_SIZE_4K | CACHE_REPLACE_LRU | CACHE_WRITE_BACK);
+    dcache_write_cfg(CACHE_FOUR_WAY | CACHE_SIZE_4K | CACHE_REPLACE_LRU | CACHE_WRITE_THROUGH);
     dcache_enable(1);
 }
 
 /**
  * @brief This functions moves the base address of the LED controller to LEDS_NEW_BASE.
- * 
+ *
  */
-void init_leds() {
+void init_leds()
+{
     // note the endianness difference
-    volatile uint32_t* baseaddr = (volatile uint32_t*)(LEDS_OLD_BASE + LEDS_BASEADDR_OFFSET);
+    volatile uint32_t *baseaddr = (volatile uint32_t *)(LEDS_OLD_BASE + LEDS_BASEADDR_OFFSET);
     printf("original address: 0x%p\n", swap_u32(*baseaddr));
-    
+
     *baseaddr = swap_u32(LEDS_NEW_BASE);
 
-    baseaddr = (volatile uint32_t*)(LEDS_NEW_BASE + LEDS_BASEADDR_OFFSET);
+    baseaddr = (volatile uint32_t *)(LEDS_NEW_BASE + LEDS_BASEADDR_OFFSET);
     printf("new address: 0x%p\n", swap_u32(*baseaddr));
 }
 
-void bouncing_ball() {
+void bouncing_ball()
+{
     // YOU CAN MODIFY THIS.
     int xdir, ydir, xpos, ypos, index;
-    volatile unsigned int* leds = (unsigned int*)(LEDS_NEW_BASE + LEDS_LEDS_OFFSET);
+    volatile unsigned int *leds = (unsigned int *)(LEDS_NEW_BASE + LEDS_LEDS_OFFSET);
 
     xdir = ydir = 1;
     xpos = ypos = 5;
-    while (1) {
+    while (1)
+    {
         index = ypos * 12 + xpos;
         leds[index] = 0;
         if (ypos == 8)
@@ -67,7 +71,8 @@ void bouncing_ball() {
     }
 }
 
-void task4_main() {
+void task4_main()
+{
     puts(__func__);
     init_dcache();
     init_leds();

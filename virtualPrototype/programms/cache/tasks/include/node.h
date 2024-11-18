@@ -9,6 +9,8 @@ extern "C" {
 
 #define NODE_DATALEN 52
 
+#define IMPROVE_NODE_LAYOUT
+
 typedef struct node_t node_t;
 
 /**
@@ -16,6 +18,19 @@ typedef struct node_t node_t;
  * @note **Do not remove** any fields from this structure.
  */
 struct node_t {
+#ifdef IMPROVE_NODE_LAYOUT
+    /** @brief Node ID. */
+    unsigned id;
+
+    /** @brief The next node. */
+    node_t* next;
+
+    /** @brief The previous node. */
+    node_t* prev;
+
+    /** @brief Node data. */
+    char data[NODE_DATALEN];
+#else
     /** @brief Node ID. */
     unsigned id;
 
@@ -27,6 +42,7 @@ struct node_t {
 
     /** @brief The previous node. */
     node_t* prev;
+#endif
 };
 
 /**
