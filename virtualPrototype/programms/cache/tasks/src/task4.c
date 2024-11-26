@@ -22,7 +22,7 @@ void init_dcache()
 {
     // YOU CAN MODIFY THIS.
     dcache_enable(0);
-    dcache_write_cfg(CACHE_FOUR_WAY | CACHE_SIZE_4K | CACHE_REPLACE_LRU | CACHE_WRITE_BACK);
+    dcache_write_cfg(CACHE_FOUR_WAY | CACHE_SIZE_4K | CACHE_REPLACE_LRU | CACHE_WRITE_THROUGH);
     dcache_enable(1);
 }
 
