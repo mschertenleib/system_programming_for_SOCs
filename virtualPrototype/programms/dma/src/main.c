@@ -13,6 +13,8 @@ rgb565 frameBuffer[SCREEN_WIDTH*SCREEN_HEIGHT];
 
 int main() {
    volatile unsigned int *vga = (unsigned int *) 0X50000020;
+   volatile unsigned int *spmlinebuff = (unsigned int *) 0XC0000000;
+   volatile unsigned int *dma_base = (unsigned int *) DMA_BASE_ADDRESS;
    volatile unsigned int reg, hi;
    uint32_t *pixel;
 
@@ -31,6 +33,9 @@ int main() {
    dcache_write_cfg( CACHE_DIRECT_MAPPED | CACHE_SIZE_8K | CACHE_WRITE_BACK);
    icache_enable(1);
    dcache_enable(1);
+
+   /* enable dma to spm memory */
+   dma_base[SPM_ADDRESS_ID] = 
 
    /* Enable the vga-controller's graphic mode */
    vga[0] = swap_u32(SCREEN_WIDTH);
@@ -68,4 +73,6 @@ int main() {
    perf_print_cycles( PERF_COUNTER_0 , "Stall time" );
    perf_print_cycles( PERF_COUNTER_1 , "Bus idle time" );
    perf_print_cycles( PERF_COUNTER_RUNTIME , "Runtime" );
+
+   printf("SPM line buffer @: %x",linebuff);
 }

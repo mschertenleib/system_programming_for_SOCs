@@ -26,7 +26,7 @@ BUILD = build-debug
 _CFLAGS += -Og -g
 else
 BUILD = build-release
-_CFLAGS +=  
+_CFLAGS +=  -Os -DNDEBUG -D__OR1300__ -D__REALLY_FAST__
 endif
 
 
