@@ -63,25 +63,25 @@ static void uart_task() {
 static void entry_task() {
     printf("hello from the entry_task\n");
 
-    // to comment a section, use `#if 0`
-    // to uncomment a section, use `#if 1`
-    // comment all sections first, and uncomment them as you
-    // implement the functionality.
+// to comment a section, use `#if 0`
+// to uncomment a section, use `#if 1`
+// comment all sections first, and uncomment them as you
+// implement the functionality.
 
-    // SECTION: basic test
-    #if 1
+// SECTION: basic test
+#if 1
     taskman_spawn(&periodic_task, (void*)1000, 4ull << 10);
     taskman_spawn(&periodic_task, (void*)3000, 4ull << 10);
     taskman_spawn(&periodic_task, (void*)9000, 4ull << 10);
-    #endif
+#endif
 
-    // SECTION: uart test
-    #if 1
+// SECTION: uart test
+#if 0
     taskman_spawn(&uart_task, NULL, 8ull << 10);
-    #endif
+#endif
 
-    // SECTION: semaphore test
-    #if 1
+// SECTION: semaphore test
+#if 0
     taskman_semaphore_init(&s, 0, 3);
 
     taskman_spawn(&up_task, (void*)2000, 8ull << 10);
@@ -116,7 +116,7 @@ static void entry_task() {
     taskman_semaphore_down(&s);
     taskman_semaphore_down(&s);
 
-    #endif
+#endif
 
     taskman_tick_wait_for(1000);
 

@@ -81,8 +81,24 @@ void* taskman_spawn(coro_fn_t coro_fn, void* arg, size_t stack_sz) {
     // (3) register the coroutine in the tasks array
     // use die_if_not() statements to handle error conditions (like no memory)
 
+    // Allocate stack space
+    uint8_t* task_stack = taskman.stack + taskman.stack_offset;
+    taskman.stack_offset += stack_sz;
+    die_if_not_f(taskman.stack_offset <= TASKMAN_STACK_SIZE, "Out of task manager stack space");
 
-    IMPLEMENT_ME;
+    // Initialize coroutine and task_data
+    coro_init(task_stack, stack_sz, coro_fn, arg);
+    struct task_data data = {
+        .wait.handler = NULL, .wait.arg = NULL, .running = 1
+    };
+    *(struct task_data*)coro_data(task_stack) = data;
+
+    // Register the coroutine in the tasks array
+    die_if_not_f(taskman.tasks_count < TASKMAN_NUM_TASKS, "Maximum number of tasks (%d) exceeded", TASKMAN_NUM_TASKS);
+    taskman.tasks[taskman.tasks_count] = task_stack;
+    ++taskman.tasks_count;
+
+    return task_stack;
 }
 
 void taskman_loop() {
@@ -120,7 +136,6 @@ void taskman_wait(struct taskman_handler* handler, void* arg) {
     // Call handler->on_wait, see if there is a need to yield.
     // Update the wait field of the task_data.
     // Yield if necessary.
-
 
     IMPLEMENT_ME;
 }

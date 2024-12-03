@@ -13,8 +13,6 @@ void coro_glinit();
 
 /**
  * @brief Initializes a stack for a new coroutine to be executed.
- *
- * @return void* Pointer to the stack to be allocated.
  */
 void coro_init(void* stack, size_t stack_sz, coro_fn_t coro_fn, void* arg);
 
@@ -22,7 +20,6 @@ void coro_init(void* stack, size_t stack_sz, coro_fn_t coro_fn, void* arg);
  * @brief Resumes a coro.
  *
  * @param coro
- * @return void* Pointer to the coroutine stack.
  */
 void coro_resume(void* stack);
 
