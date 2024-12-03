@@ -89,7 +89,7 @@ void* taskman_spawn(coro_fn_t coro_fn, void* arg, size_t stack_sz) {
     // Initialize coroutine and task_data
     coro_init(task_stack, stack_sz, coro_fn, arg);
     struct task_data task_data = {
-        .wait.handler = NULL, .wait.arg = NULL, .running = 1
+        .wait.handler = NULL, .wait.arg = NULL, .running = 0
     };
     *(struct task_data*)coro_data(task_stack) = task_data;
 
@@ -109,6 +109,7 @@ void taskman_loop() {
     //        * the waiting handler says it can be resumed.
 
     while (!taskman.should_stop) {
+
         // Call the loop function of all the wait handlers
         for (size_t i = 0; i < taskman.handlers_count; ++i) {
             taskman.handlers[i]->loop(taskman.handlers[i]);
@@ -120,9 +121,13 @@ void taskman_loop() {
             struct task_data* task_data = (struct task_data*)coro_data(task_stack);
 
             int complete = coro_completed(task_stack, NULL);
-            int can_resume = task_data->wait.handler->can_resume(task_data->wait.handler, task_stack, task_data->wait.arg);
+            int can_resume = 1;
+            if (task_data->wait.handler != NULL) {
+                can_resume = task_data->wait.handler->can_resume(task_data->wait.handler, task_stack, task_data->wait.arg);
+            }
 
             if (!complete && !task_data->running && can_resume) {
+                task_data->running = 1;
                 coro_resume(task_stack);
             }
         }
@@ -152,12 +157,15 @@ void taskman_wait(struct taskman_handler* handler, void* arg) {
     // Update the wait field of the task_data.
     // Yield if necessary.
 
-    int wait = handler->on_wait(handler, stack, arg);
-
-    task_data->wait.handler = handler;
-    task_data->wait.arg = arg;
+    int wait = 0;
+    if (handler != NULL) {
+        wait = handler->on_wait(handler, stack, arg);
+        task_data->wait.handler = handler;
+        task_data->wait.arg = arg;
+    }
 
     if (wait == 0) {
+        task_data->running = 0;
         coro_yield();
     }
 }

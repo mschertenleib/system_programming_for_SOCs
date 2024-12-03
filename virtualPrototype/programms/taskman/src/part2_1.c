@@ -70,9 +70,13 @@ static void entry_task() {
 
 // SECTION: basic test
 #if 1
+    // taskman_spawn(&periodic_task, (void*)1000, 4ull << 10);
+    // taskman_spawn(&periodic_task, (void*)3000, 4ull << 10);
+    // taskman_spawn(&periodic_task, (void*)9000, 4ull << 10);
+
+    taskman_spawn(&periodic_task, (void*)250, 4ull << 10);
     taskman_spawn(&periodic_task, (void*)1000, 4ull << 10);
-    taskman_spawn(&periodic_task, (void*)3000, 4ull << 10);
-    taskman_spawn(&periodic_task, (void*)9000, 4ull << 10);
+    taskman_spawn(&periodic_task, (void*)2000, 4ull << 10);
 #endif
 
 // SECTION: uart test
@@ -118,7 +122,7 @@ static void entry_task() {
 
 #endif
 
-    taskman_tick_wait_for(1000);
+    taskman_tick_wait_for(5000);
 
     printf("[ t = %10u ms ] %s: stopping the task manager loop\n", taskman_tick_now(), __func__);
     taskman_stop();
@@ -134,10 +138,12 @@ void part2_1() {
     taskman_glinit();
 
     taskman_semaphore_glinit();
-    taskman_uart_glinit();
+    //  taskman_uart_glinit();
     taskman_tick_glinit();
 
     taskman_spawn(&entry_task, NULL, 4ull << 10);
 
     taskman_loop();
+
+    printf("reached the end of %s\n", __func__);
 }
