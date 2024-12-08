@@ -63,9 +63,7 @@ void taskman_semaphore_init(
     semaphore->max = max;
 }
 
-#include <printf.h>
 void __no_optimize taskman_semaphore_down(struct taskman_semaphore* semaphore) {
-    printf("Down %u %u\n", semaphore->count, semaphore->max);
     if (semaphore->count == 0) {
         struct wait_data wait_data = {
             .semaphore = semaphore, .direction = 0
@@ -73,11 +71,9 @@ void __no_optimize taskman_semaphore_down(struct taskman_semaphore* semaphore) {
         taskman_wait(&semaphore_handler, (void*)&wait_data);
     }
     --semaphore->count;
-    printf("Down done -> %u %u\n", semaphore->count, semaphore->max);
 }
 
 void __no_optimize taskman_semaphore_up(struct taskman_semaphore* semaphore) {
-    printf("Up %u %u\n", semaphore->count, semaphore->max);
     if (semaphore->count >= semaphore->max) {
         struct wait_data wait_data = {
             .semaphore = semaphore, .direction = 1
@@ -85,5 +81,4 @@ void __no_optimize taskman_semaphore_up(struct taskman_semaphore* semaphore) {
         taskman_wait(&semaphore_handler, (void*)&wait_data);
     }
     ++semaphore->count;
-    printf("Up done -> %u %u\n", semaphore->count, semaphore->max);
 }

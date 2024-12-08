@@ -80,7 +80,7 @@ static void entry_task() {
 #endif
 
 // SECTION: uart test
-#if 0
+#if 1
     taskman_spawn(&uart_task, NULL, 8ull << 10);
 #endif
 
@@ -122,7 +122,9 @@ static void entry_task() {
 
 #endif
 
-    taskman_tick_wait_for(1000);
+    // FIXME: remove infinite loop for submission
+    while (1)
+        taskman_tick_wait_for(5000);
 
     printf("[ t = %10u ms ] %s: stopping the task manager loop\n", taskman_tick_now(), __func__);
     taskman_stop();
@@ -138,7 +140,7 @@ void part2_1() {
     taskman_glinit();
 
     taskman_semaphore_glinit();
-    //  taskman_uart_glinit();
+    taskman_uart_glinit();
     taskman_tick_glinit();
 
     taskman_spawn(&entry_task, NULL, 4ull << 10);
