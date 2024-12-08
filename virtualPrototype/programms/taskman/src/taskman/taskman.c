@@ -81,6 +81,8 @@ void* taskman_spawn(coro_fn_t coro_fn, void* arg, size_t stack_sz) {
     // (3) register the coroutine in the tasks array
     // use die_if_not() statements to handle error conditions (like no memory)
 
+    TASKMAN_LOCK();
+
     // Allocate stack space
     uint8_t* task_stack = taskman.stack + taskman.stack_offset;
     taskman.stack_offset += stack_sz;
@@ -98,6 +100,8 @@ void* taskman_spawn(coro_fn_t coro_fn, void* arg, size_t stack_sz) {
     taskman.tasks[taskman.tasks_count] = task_stack;
     ++taskman.tasks_count;
 
+    TASKMAN_RELEASE();
+
     return task_stack;
 }
 
@@ -110,18 +114,23 @@ void taskman_loop() {
 
     while (!taskman.should_stop) {
 
+        TASKMAN_LOCK();
         // Call the loop function of all the wait handlers
         for (size_t i = 0; i < taskman.handlers_count; ++i) {
             taskman.handlers[i]->loop(taskman.handlers[i]);
         }
+        size_t num_tasks = taskman.tasks_count;
+        TASKMAN_RELEASE();
 
         // Iterate over all the tasks and resume them if necessary
-        for (size_t i = 0; i < taskman.tasks_count; ++i) {
+        for (size_t i = 0; i < num_tasks; ++i) {
             void* task_stack = taskman.tasks[i];
             struct task_data* task_data = (struct task_data*)coro_data(task_stack);
 
             int complete = coro_completed(task_stack, NULL);
             int can_resume = 1;
+
+            TASKMAN_LOCK();
             if (task_data->wait.handler != NULL) {
                 can_resume = task_data->wait.handler->can_resume(task_data->wait.handler, task_stack, task_data->wait.arg);
             }
@@ -130,6 +139,7 @@ void taskman_loop() {
                 task_data->running = 1;
                 coro_resume(task_stack);
             }
+            TASKMAN_RELEASE();
         }
     }
 }
@@ -141,11 +151,15 @@ void taskman_stop() {
 }
 
 void taskman_register(struct taskman_handler* handler) {
+    TASKMAN_LOCK();
+
     die_if_not(handler != NULL);
     die_if_not(taskman.handlers_count < TASKMAN_NUM_HANDLERS);
 
     taskman.handlers[taskman.handlers_count] = handler;
     taskman.handlers_count++;
+
+    TASKMAN_RELEASE();
 }
 
 void taskman_wait(struct taskman_handler* handler, void* arg) {
@@ -156,6 +170,8 @@ void taskman_wait(struct taskman_handler* handler, void* arg) {
     // Call handler->on_wait, see if there is a need to yield.
     // Update the wait field of the task_data.
     // Yield if necessary.
+
+    TASKMAN_LOCK();
 
     int wait = 0;
     if (handler != NULL) {
@@ -168,6 +184,8 @@ void taskman_wait(struct taskman_handler* handler, void* arg) {
         task_data->running = 0;
         coro_yield();
     }
+
+    TASKMAN_RELEASE();
 }
 
 void taskman_yield() {

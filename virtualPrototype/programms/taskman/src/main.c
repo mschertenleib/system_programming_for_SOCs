@@ -12,7 +12,7 @@ int main() {
     icache_enable(0);
     dcache_enable(0);
 
-    part1();
-    part2_1();
-    // part2_2();
+    // part1();
+    // part2_1();
+    part2_2();
 }
