@@ -5,20 +5,24 @@
 
 __global static struct taskman_handler semaphore_handler;
 
-
 struct wait_data {
     // to be passed as an argument.
     // what kind of data do we need to put here
     // so that the semaphore works correctly?
 
+    struct taskman_semaphore* semaphore;
+    int direction; // 1: up, 0; down
 };
 
 static int impl(struct wait_data* wait_data) {
     // implement the semaphore logic here
     // do not forget to check the header file
 
-
-    IMPLEMENT_ME;
+    if (wait_data->direction == 0) {
+        return wait_data->semaphore->count > 0;
+    } else {
+        return wait_data->semaphore->count < wait_data->semaphore->max;
+    }
 }
 
 static int on_wait(struct taskman_handler* handler, void* stack, void* arg) {
@@ -59,12 +63,27 @@ void taskman_semaphore_init(
     semaphore->max = max;
 }
 
+#include <printf.h>
 void __no_optimize taskman_semaphore_down(struct taskman_semaphore* semaphore) {
-
-    IMPLEMENT_ME;
+    printf("Down %u %u\n", semaphore->count, semaphore->max);
+    if (semaphore->count == 0) {
+        struct wait_data wait_data = {
+            .semaphore = semaphore, .direction = 0
+        };
+        taskman_wait(&semaphore_handler, (void*)&wait_data);
+    }
+    --semaphore->count;
+    printf("Down done -> %u %u\n", semaphore->count, semaphore->max);
 }
 
 void __no_optimize taskman_semaphore_up(struct taskman_semaphore* semaphore) {
-
-    IMPLEMENT_ME;
+    printf("Up %u %u\n", semaphore->count, semaphore->max);
+    if (semaphore->count >= semaphore->max) {
+        struct wait_data wait_data = {
+            .semaphore = semaphore, .direction = 1
+        };
+        taskman_wait(&semaphore_handler, (void*)&wait_data);
+    }
+    ++semaphore->count;
+    printf("Up done -> %u %u\n", semaphore->count, semaphore->max);
 }

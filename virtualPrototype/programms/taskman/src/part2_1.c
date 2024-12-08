@@ -85,7 +85,7 @@ static void entry_task() {
 #endif
 
 // SECTION: semaphore test
-#if 0
+#if 1
     taskman_semaphore_init(&s, 0, 3);
 
     taskman_spawn(&up_task, (void*)2000, 8ull << 10);
@@ -122,7 +122,7 @@ static void entry_task() {
 
 #endif
 
-    taskman_tick_wait_for(5000);
+    taskman_tick_wait_for(1000);
 
     printf("[ t = %10u ms ] %s: stopping the task manager loop\n", taskman_tick_now(), __func__);
     taskman_stop();
