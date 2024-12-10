@@ -122,9 +122,8 @@ static void entry_task() {
 
 #endif
 
-    // FIXME: remove infinite loop for submission
-    while (1)
-        taskman_tick_wait_for(5000);
+    // while(1)
+    taskman_tick_wait_for(5000);
 
     printf("[ t = %10u ms ] %s: stopping the task manager loop\n", taskman_tick_now(), __func__);
     taskman_stop();

@@ -67,9 +67,6 @@ static uint8_t uart_buffer_pop(struct uart_buffer* uart_buffer) {
 
 #pragma endregion
 
-// FIXME
-#include <printf.h>
-
 struct wait_data {
     uint8_t* buffer;
     size_t buffer_capacity;
@@ -113,27 +110,27 @@ static int can_resume(struct taskman_handler* handler, void* stack, void* arg) {
     int resume = 0;
 
     while (uart_buffer_nonempty(uart_buffer)) {
-        if (wait_data->length >= wait_data->buffer_capacity) {
-            printf("Destination buffer full\n");
+        // Check if buffer is full
+        if (wait_data->length == wait_data->buffer_capacity - 1) {
+            wait_data->buffer[wait_data->length] = '\0';
             resume = 1;
             break;
         }
+        // Extract a single character from the uart_buffer
         uint8_t c = uart_buffer_pop(uart_buffer);
+        // Check if newline received
         if (c == '\n') {
-            printf("Popped '\\n', UART buffer len=%u\n", uart_buffer->size);
             wait_data->buffer[wait_data->length] = '\0';
-            //++wait_data->length; // We should not count the zero in the length
             resume = 1;
             break;
         } else {
-            printf("Popped '%c', UART buffer len=%u\n", c, uart_buffer->size);
             wait_data->buffer[wait_data->length] = c;
             ++wait_data->length;
         }
     }
 
-    if (wait_data->length >= wait_data->buffer_capacity) {
-        printf("Destination buffer full (reached at the end)\n");
+    if (wait_data->length == wait_data->buffer_capacity - 1) {
+        wait_data->buffer[wait_data->length] = '\0';
         resume = 1;
     }
 
@@ -151,16 +148,17 @@ static void loop(struct taskman_handler* handler) {
     volatile char* uart = (volatile char*)UART_BASE;
     struct uart_buffer* uart_buffer = &uart_handler.uart_buffer;
 
+    // If available, read data from UART and put it to the UART buffer
+    // You can discard data if the buffer is full.
+    // see: support/src/uart.c for help.
+
     while (uart[UART_LINE_STATUS_REGISTER] & UART_RX_AVAILABLE_MASK) {
+        // Read a character from UART and save it in uart_buffer if it is not full
         uint8_t c = (uint8_t)*uart;
         if (uart_buffer_nonfull(uart_buffer)) {
             uart_buffer_put(uart_buffer, c);
         }
     }
-
-    // If available, read data from UART and put it to the UART buffer
-    // You can discard data if the buffer is full.
-    // see: support/src/uart.c for help.
 }
 
 void taskman_uart_glinit() {
