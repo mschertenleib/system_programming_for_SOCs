@@ -134,12 +134,18 @@ void taskman_loop() {
             if (task_data->wait.handler != NULL) {
                 can_resume = task_data->wait.handler->can_resume(task_data->wait.handler, task_stack, task_data->wait.arg);
             }
-
-            if (!complete && !task_data->running && can_resume) {
-                task_data->running = 1;
-                coro_resume(task_stack);
-            }
             TASKMAN_RELEASE();
+
+            if (!complete && can_resume) {
+                TASKMAN_LOCK();
+                if (!task_data->running) {
+                    task_data->running = 1;
+                    TASKMAN_RELEASE();
+                    coro_resume(task_stack);
+                } else {
+                    TASKMAN_RELEASE();
+                }
+            }
         }
     }
 }
@@ -171,21 +177,21 @@ void taskman_wait(struct taskman_handler* handler, void* arg) {
     // Update the wait field of the task_data.
     // Yield if necessary.
 
-    TASKMAN_LOCK();
-
     int wait = 0;
     if (handler != NULL) {
+        TASKMAN_LOCK();
         wait = handler->on_wait(handler, stack, arg);
         task_data->wait.handler = handler;
         task_data->wait.arg = arg;
+        TASKMAN_RELEASE();
     }
 
     if (wait == 0) {
+        TASKMAN_LOCK();
         task_data->running = 0;
+        TASKMAN_RELEASE();
         coro_yield();
     }
-
-    TASKMAN_RELEASE();
 }
 
 void taskman_yield() {
