@@ -122,7 +122,7 @@ static int can_resume(struct taskman_handler* handler, void* stack, void* arg) {
         if (c == '\n') {
             printf("Popped '\\n', UART buffer len=%u\n", uart_buffer->size);
             wait_data->buffer[wait_data->length] = '\0';
-            ++wait_data->length;
+            //++wait_data->length; // We should not count the zero in the length
             resume = 1;
             break;
         } else {
